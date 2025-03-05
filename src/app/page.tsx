@@ -81,7 +81,7 @@ export default function Home() {
             <CardContent>
               <Grid container spacing={2} sx={{ height: '100%' }}>
                 <Grid size={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Image src={`/${pair.substring(0, pair.length - 4).toLowerCase()}.svg`} alt='logo' width={200} height={200} style={{opacity: '0.8'}}/>
+                  <Image src={`/${pair.substring(0, pair.length - 4).toLowerCase()}.svg`} alt='logo' width={200} height={200} style={{opacity: '0.8'}}/>
                 </Grid>
                 <Grid size={8} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Grid container spacing={2}>
@@ -97,7 +97,7 @@ export default function Home() {
                     </Grid>
                     <Grid size={4}><NeuTypography>Underlying Price</NeuTypography></Grid>
                     <Grid size={8}><NeuTypography>{currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</NeuTypography></Grid>
-                    <Grid size={4}><NeuTypography>Volatility</NeuTypography></Grid>
+                    <Grid size={4}><NeuTypography>Historical Volatility</NeuTypography></Grid>
                     <Grid size={8}><NeuTypography>{(volatility * 100).toFixed(2)} %</NeuTypography></Grid>
                   </Grid>
                 </Grid>
@@ -116,7 +116,7 @@ export default function Home() {
                     onChange={e => setRiskFreeRate(e.target.value !== '' ? parseFloat(e.target.value) : 0)}
                     slotProps={{ input: { endAdornment: <InputAdornment position='end'><NeuTypography>%</NeuTypography></InputAdornment> } }}/>
                 </Grid>
-                <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Volatility Interval</NeuTypography></Grid>
+                <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Historical Volatility Interval</NeuTypography></Grid>
                 <Grid size={8}>
                   <NeuSelect value={interval} onChange={e => setInterval(e.target.value as string)} inputProps={{ MenuProps: { MenuListProps: { sx: { backgroundColor: '#cbc3db' } } } }}>
                     <NeuMenuItem value={'4h'}><NeuTypography>4 hours</NeuTypography></NeuMenuItem>
@@ -127,7 +127,7 @@ export default function Home() {
                     <NeuMenuItem value={'1M'}><NeuTypography>1 month</NeuTypography></NeuMenuItem>
                   </NeuSelect>
                 </Grid>
-                <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Volatility Window</NeuTypography></Grid>
+                <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Historical Volatility Window</NeuTypography></Grid>
                 <Grid size={8}>
                   <NeuSlider value={window} max={360} min={10} onChange={e => setWindow(parseInt((e.target as HTMLInputElement).value))} step={10} valueLabelDisplay={'on'} />
                 </Grid>
