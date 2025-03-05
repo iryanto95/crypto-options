@@ -35,22 +35,12 @@ export default function Home() {
   const [window, setWindow] = useState(30)
   const [volatility, setVolatility] = useState(-1)
   const [currentPrice, setCurrentPrice] = useState(-1)
-  const [marketPrices, setMarketPrices] = useState([])
-
-  const calculateVolatility = useCallback(async () => {
-    // Fetch historical prices
-    const { data: candles } = await axios.get(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=${interval}&limit=${window}`)
-    const prices = candles.map((c: Array<string>) => parseFloat(c[4]))
-
-    // Calculate volatility
-    const logReturns = []
-    for (let i = 1; i < prices.length; i++)
-      logReturns.push(Math.log(prices[i] / prices[i - 1]))
-
-    const meanReturn = logReturns.reduce((a, b) => a + b, 0) / logReturns.length
-    const variance   = logReturns.reduce((sum, r) => sum + Math.pow(r - meanReturn, 2), 0) / (logReturns.length - 1)
-    setVolatility(Math.sqrt(variance) * Math.sqrt(365 / INTERVAL_TO_DAYS[interval]))
-  }, [pair, interval, window])
+  const [marketPrices, setMarketPrices] = useState([{s: '', mp: ''}]) 
+  const [isClient, setIsClient] = useState(false)
+ 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
     const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLocaleLowerCase()}@trade`)
@@ -69,19 +59,37 @@ export default function Home() {
     }
   }, [pair])
 
+  const calculateVolatility = useCallback(async () => {
+    // Fetch historical prices
+    const { data: candles } = await axios.get(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=${interval}&limit=${window}`)
+    const prices = candles.map((c: Array<string>) => parseFloat(c[4]))
+
+    // Calculate volatility
+    const logReturns = []
+    for (let i = 1; i < prices.length; i++)
+      logReturns.push(Math.log(prices[i] / prices[i - 1]))
+
+    const meanReturn = logReturns.reduce((a, b) => a + b, 0) / logReturns.length
+    const variance   = logReturns.reduce((sum, r) => sum + Math.pow(r - meanReturn, 2), 0) / (logReturns.length - 1)
+    setVolatility(Math.sqrt(variance) * Math.sqrt(365 / INTERVAL_TO_DAYS[interval]))
+  }, [pair, interval, window])
+
   useEffect(() => {
     calculateVolatility()
   }, [calculateVolatility])
 
+  if (!isClient)
+    return
+
   return (
-    <Box sx={{ padding: '16px 128px 16px 128px', background: '#cbc3db' }}>
+    <Box sx={{ padding: '16px 128px 16px 128px', minHeight: '100vh', background: '#cbc3db' }}>
       <Grid container spacing={4}>
         <Grid size={6}>
           <NeuCard sx={{ width: '100%', height: '100%', padding: '16px' }}>
             <CardContent>
               <Grid container spacing={2} sx={{ height: '100%' }}>
                 <Grid size={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Image src={`/${pair.substring(0, pair.length - 4).toLowerCase()}.svg`} alt='logo' width={200} height={200} style={{opacity: '0.8'}}/>
+                  <Image priority src={`/${pair.substring(0, pair.length - 4).toLowerCase()}.svg`} alt='logo' width={200} height={200} style={{opacity: '0.8'}}/>
                 </Grid>
                 <Grid size={8} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Grid container spacing={2}>

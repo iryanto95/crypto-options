@@ -19,10 +19,10 @@ type propsType = {
   volatility: number
   riskFreeRate: number
   optionType: string
-  marketPrices: [{
+  marketPrices: {
     s: string
     mp: string
-  }]
+  }[]
 }
 
 export default function Visualizer(props: propsType) {
