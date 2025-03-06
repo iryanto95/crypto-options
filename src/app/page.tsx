@@ -91,7 +91,7 @@ export default function Home() {
             <CardContent>
               <Grid container spacing={2} sx={{ height: '100%' }}>
                 <Grid size={4} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Image priority src={`/${pair.substring(0, pair.length - 4).toLowerCase()}.svg`} alt='logo' width={200} height={200} style={{opacity: '0.8'}}/>
+                  <Image priority src={`./${pair.substring(0, pair.length - 4).toLowerCase()}.svg`} alt='logo' width={200} height={200} style={{opacity: '0.8'}}/>
                 </Grid>
                 <Grid size={8} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Grid container spacing={2}>
