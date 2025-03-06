@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useCallback, useState } from 'react'
 import {
   Box,
@@ -25,10 +26,7 @@ type propsType = {
   volatility: number
   riskFreeRate: number
   optionType: string
-  marketPrices: {
-    s: string
-    mp: string
-  }[]
+  marketPrices: {[key:string]: number }
   displayVal: string,
   displayDay: string,
 }
@@ -118,14 +116,7 @@ export default function Visualizer(props: propsType) {
 
   const rows = []
   const dates = []
-  const opts: { [key: string]: number } = {}
   const today = new Date()
-  for (const marketPrice of props.marketPrices) {
-    const symbol = marketPrice.s.split('-')
-    if ((symbol[3] === 'C' && props.optionType === 'call') || (symbol[3] === 'P' && props.optionType === 'put')) {
-      opts[`${symbol[1]}_${parseFloat(symbol[2]).toFixed(2)}`] = parseFloat(marketPrice.mp)
-    }
-  }
   for (let day = -1; day < 10; day++) {
     const theDate = new Date(today.getTime() + (day + lowestDTE) * 24 * 3600 * 1000)
     if (day === -1)
@@ -158,12 +149,12 @@ export default function Visualizer(props: propsType) {
         <NeuTypography fontSize={12}>{strike.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</NeuTypography>
       </Grid>
     )
-    
     const cells = []
     for (let day = 0; day < 10; day++) {
-      today.setTime(today.getTime() + 24 * 2600 * 1000)
-      const todayString = `${today.getFullYear() % 100}${today.getMonth() + 1 < 10 ? 0 : ''}${today.getMonth() + 1}${today.getDate() < 10 ? 0 : ''}${today.getDate()}`
-      const optPrice = opts[`${todayString}_${strike.toFixed(2)}`]
+      const thisDay = new Date(today.getTime() + day * 24 * 2600 * 1000)
+      const thisDayString = `${thisDay.getFullYear() % 100}${thisDay.getMonth() + 1 < 10 ? 0 : ''}${thisDay.getMonth() + 1}${thisDay.getDate() < 10 ? 0 : ''}${thisDay.getDate()}`
+      
+      const optPrice = props.marketPrices[`${props.pair.substring(0, props.pair.length - 4)}-${thisDayString}-${(strike).toFixed(2)}-${props.optionType === 'call' ? 'C' : 'P'}`]
       const bsPrice = blackScholes(strike, (day + lowestDTE + remainingToday) / 365, props.volatility)
       const iv = optPrice ? impliedVolatility(optPrice, strike, (day + lowestDTE + remainingToday) / 365) : null
       const diff = optPrice ? optPrice - bsPrice : 0

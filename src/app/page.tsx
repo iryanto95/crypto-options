@@ -29,6 +29,11 @@ const INTERVAL_TO_DAYS: {[key: string]: number} = {
   '1M': 30,
 }
 
+type mp = {
+  s: string
+  mp: string
+}
+
 export default function Home() {
   const [pair, setPair] = useState('BTCUSDT')
   const [riskFreeRate, setRiskFreeRate] = useState(5)
@@ -36,7 +41,7 @@ export default function Home() {
   const [window, setWindow] = useState(30)
   const [volatility, setVolatility] = useState(-1)
   const [currentPrice, setCurrentPrice] = useState(-1)
-  const [marketPrices, setMarketPrices] = useState([{s: '', mp: ''}]) 
+  const [marketPrices, setMarketPrices] = useState({}) 
   const [isClient, setIsClient] = useState(false)
   const [displayVal, setDisplayVal] = useState('fv')
   const [displayDay, setDisplayDay] = useState('expd')
@@ -46,19 +51,32 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLocaleLowerCase()}@trade`)
-    ws.onmessage = (e) => {
+    const ws_spotPrice = new WebSocket(`wss://stream.binance.com:9443/ws/${pair.toLocaleLowerCase()}@trade`)
+    ws_spotPrice.onmessage = (e) => {
       setCurrentPrice(parseFloat(JSON.parse(e.data).p))
     }
 
-    const ws2 = new WebSocket(`wss://nbstream.binance.com/eoptions/ws/${pair.substring(0, pair.length - 4)}@markPrice`)
-    ws2.onmessage = (e) => {
-      setMarketPrices(JSON.parse(e.data))
+    const ws_optionMarketPrice = new WebSocket(`wss://nbstream.binance.com/eoptions/ws/${pair.substring(0, pair.length - 4)}@markPrice`)
+    ws_optionMarketPrice.onmessage = (e) => {
+      const incomingData = JSON.parse(e.data)
+      
+      const markets: {[key: string]: number} = {}
+      incomingData.forEach((row: mp) => {
+        const symbolArr = row.s.split('-')
+        markets[`${symbolArr[0]}-${symbolArr[1]}-${parseFloat(symbolArr[2]).toFixed(2)}-${symbolArr[3]}`] = parseFloat(row.mp)
+      })
+      
+      setMarketPrices((prev: {[key: string]: number}) => {
+        return {
+          ...prev,
+          ...markets
+        }
+      })
     }
 
     return () => {
-      ws.close()
-      ws2.close()
+      ws_spotPrice.close()
+      ws_optionMarketPrice.close()
     }
   }, [pair])
 
