@@ -29,7 +29,8 @@ type propsType = {
     s: string
     mp: string
   }[]
-  display: string
+  displayVal: string,
+  displayDay: string,
 }
 
 export default function Visualizer(props: propsType) {
@@ -118,6 +119,7 @@ export default function Visualizer(props: propsType) {
   const rows = []
   const dates = []
   const opts: { [key: string]: number } = {}
+  const today = new Date()
   for (const marketPrice of props.marketPrices) {
     const symbol = marketPrice.s.split('-')
     if ((symbol[3] === 'C' && props.optionType === 'call') || (symbol[3] === 'P' && props.optionType === 'put')) {
@@ -125,22 +127,25 @@ export default function Visualizer(props: propsType) {
     }
   }
   for (let day = -1; day < 10; day++) {
+    const theDate = new Date(today.getTime() + (day + lowestDTE) * 24 * 3600 * 1000)
     if (day === -1)
       dates.push(
         <Grid key={day} size={12/11} sx={{ textAlign: 'right', fontSize: '10pt', padding: '2px' }}>
-          <NeuTypography fontSize={12}>Strike\DTE</NeuTypography>
+          <NeuTypography fontSize={12}>Strike\{ props.displayDay === 'expd' ? 'Expiry' : 'DTE' }</NeuTypography>
         </Grid>
       )
     else
       dates.push(
         <Grid key={day} size={12/11} sx={{ textAlign: 'center', padding: '2px', borderBottom: '0.01px solid rgba(51, 27, 95, 0.30)', }}>
-          <NeuTypography fontSize={12}>{day + lowestDTE}</NeuTypography>
+          { props.displayDay === 'expd' ?
+            <NeuTypography fontSize={12}>{`${theDate.getDate()}/${theDate.getMonth() + 1}/${theDate.getFullYear()}`}</NeuTypography>
+            : <NeuTypography fontSize={12}>{day + lowestDTE}</NeuTypography>
+          }
         </Grid>
       )
   }
   rows.push(dates)
 
-  const today = new Date()
   today.setTime(today.getTime() + lowestDTE * 24 * 2600 * 1000)
   const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 0, 0, 0, 0))
   const remainingToday = (endOfDay.getTime() - today.getTime()) / 3600000
@@ -170,7 +175,8 @@ export default function Visualizer(props: propsType) {
         diff,
         iv: iv !== null ? (iv * 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %' : '',
         optPrice,
-        bsPrice
+        bsPrice,
+        isRef: strike === refPrice
       })
     }
     
@@ -181,7 +187,8 @@ export default function Visualizer(props: propsType) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderBottom: '0.01px solid rgba(51, 27, 95, 0.30)',
+            borderTop: cell.isRef ? '3px solid rgba(51, 27, 95, 0.30)' : null,
+            borderBottom: `${cell.isRef ? 4 : 0.01}px solid rgba(51, 27, 95, 0.30)`,
             borderRight: '0.01px solid rgba(51, 27, 95, 0.30)',
             textAlign: 'center',
             padding: '2px', 
@@ -194,7 +201,7 @@ export default function Visualizer(props: propsType) {
             <Box >
               <Box sx={{visibility: cell.optPrice ? 'visible' : 'hidden', fontWeight: 600}}><NeuTypography fontSize={12}>{cell.optPrice ? cell.optPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : <>-</>}</NeuTypography></Box>
               <Box>
-                { props.display === 'fv' ? 
+                { props.displayVal === 'fv' ? 
                   <NeuTypography fontSize={10}>{cell.bsPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</NeuTypography>
                   : <NeuTypography fontSize={10}>{cell.iv}</NeuTypography>
                 }

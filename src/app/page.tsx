@@ -38,7 +38,8 @@ export default function Home() {
   const [currentPrice, setCurrentPrice] = useState(-1)
   const [marketPrices, setMarketPrices] = useState([{s: '', mp: ''}]) 
   const [isClient, setIsClient] = useState(false)
-  const [display, setDisplay] = useState('fv')
+  const [displayVal, setDisplayVal] = useState('fv')
+  const [displayDay, setDisplayDay] = useState('expd')
  
   useEffect(() => {
     setIsClient(true)
@@ -113,11 +114,27 @@ export default function Home() {
                     <Grid size={7}><NeuTypography>{currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</NeuTypography></Grid>
                     <Grid size={5}><NeuTypography>Historical Volatility</NeuTypography></Grid>
                     <Grid size={7}><NeuTypography>{(volatility * 100).toFixed(2)} %</NeuTypography></Grid>
-                    <Grid size={5} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Display</NeuTypography></Grid>
-                    <Grid size={7}>
-                      <NeuTypography fontSize={12} display='inline'>Fair Value</NeuTypography>
-                      <NeuSwitch checked={display === 'iv'} onChange={e => setDisplay(e.target.checked ? 'iv' : 'fv')}/>
-                      <NeuTypography fontSize={12} display='inline'>Implied Volatility</NeuTypography>
+                    <Grid size={12}>
+                      <Grid container spacing={0}>
+                        <Grid size={5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'right' }}>
+                          <NeuTypography fontSize={12} display='inline'>Fair Value (HV)</NeuTypography>
+                        </Grid>
+                        <Grid size={2} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <NeuSwitch checked={displayVal === 'iv'} onChange={e => setDisplayVal(e.target.checked ? 'iv' : 'fv')}/>
+                        </Grid>
+                        <Grid size={5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'left' }}>
+                          <NeuTypography fontSize={12} display='inline'>Implied Volatility</NeuTypography>
+                        </Grid>
+                        <Grid size={5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'right' }}>
+                          <NeuTypography fontSize={12} display='inline'>Expiry Date</NeuTypography>
+                        </Grid>
+                        <Grid size={2} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <NeuSwitch checked={displayDay === 'dte'} onChange={e => setDisplayDay(e.target.checked ? 'dte' : 'expd')}/>
+                        </Grid>
+                        <Grid size={5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'left' }}>
+                          <NeuTypography fontSize={12} display='inline'>DTE</NeuTypography>
+                        </Grid>
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -172,7 +189,8 @@ export default function Home() {
                     riskFreeRate={riskFreeRate / 100} 
                     marketPrices={marketPrices} 
                     optionType={'call'}
-                    display={display}/>
+                    displayVal={displayVal}
+                    displayDay={displayDay}/>
                 </CardContent>
               </NeuCard>
             </Grid>
@@ -186,7 +204,8 @@ export default function Home() {
                   riskFreeRate={riskFreeRate / 100} 
                   marketPrices={marketPrices} 
                   optionType={'put'}
-                  display={display}/>
+                  displayVal={displayVal}
+                  displayDay={displayDay}/>
                 </CardContent>
               </NeuCard>
             </Grid>
