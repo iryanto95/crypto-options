@@ -1,6 +1,10 @@
 ## Notes
 
-The heatmap is based on differences between market price and B-S fair value based on historical volatility (HV). I am still working on implied volatility (IV) based heatmap.
+Fair Value is an expected Black-Scholes Price based on historical volatility (HV).
+
+Implied volatility (IV) is calculated from the existing market price in Binance Options market.
+
+A green cell on the heat map indicates HV > IV while a red cell indicates HV < IV. More saturated color indicates larger gap.
 
 
 ## How to Run
