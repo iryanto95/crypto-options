@@ -70,8 +70,8 @@ export default function Visualizer(props: propsType) {
 
   // Vega (Sensitivity of BS Price to Volatility)
   const vega = useCallback((strike: number, timeToExpiration: number, sigma: number) => {
-    const d1 = (Math.log(props.currentPrice / strike) + (props.riskFreeRate + props.volatility * props.volatility / 2) * timeToExpiration) / (props.volatility * Math.sqrt(timeToExpiration))
-    let pdf = Math.exp(-0.5 * d1 * d1) / Math.sqrt(2 * Math.PI)
+    const d1 = (Math.log(props.currentPrice / strike) + (props.riskFreeRate + sigma * sigma / 2) * timeToExpiration) / (sigma * Math.sqrt(timeToExpiration))
+    const pdf = Math.exp(-0.5 * d1 * d1) / Math.sqrt(2 * Math.PI)
     return props.currentPrice * pdf * Math.sqrt(timeToExpiration)
   }, [props.currentPrice, props.riskFreeRate])
 
@@ -110,7 +110,7 @@ export default function Visualizer(props: propsType) {
     }
 
     return sigma // Return best estimate
-  }, [props.currentPrice, props.volatility])
+  }, [props.volatility, blackScholes, vega])
 
   const incr = STRIKE_INCR[props.pair]
   const refPrice = Math.floor(props.currentPrice / incr) * incr
