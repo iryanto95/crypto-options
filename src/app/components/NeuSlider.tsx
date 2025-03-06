@@ -1,7 +1,7 @@
 import { Slider } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
-const NeuCard = styled(Slider)(() => ({
+const NeuSlider = styled(Slider)(() => ({
   marginTop: '32px',
   color: '#331b5f',
   '.MuiSlider-valueLabel': {
@@ -23,11 +23,12 @@ const NeuCard = styled(Slider)(() => ({
     height: '16px',
   },
   '.MuiSlider-rail': {
-    opacity: '0.2'
+    background: '#cbc3db',
+    boxShadow: 'inset 2px 2px 4px rgb(114, 106, 129), inset -2px -2px 4px rgb(218, 212, 228)',
   },
   '.MuiSlider-track': {
     opacity: '0.5'
   }
 }))
 
-export default NeuCard
+export default NeuSlider

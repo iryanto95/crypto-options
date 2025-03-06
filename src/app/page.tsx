@@ -14,6 +14,7 @@ import NeuCard from './components/NeuCard'
 import NeuMenuItem from './components/NeuMenuItem'
 import NeuSelect from './components/NeuSelect'
 import NeuSlider from './components/NeuSlider'
+import NeuSwitch from './components/NeuSwitch'
 import NeuTextField from './components/NeuTextField'
 import NeuTypography from './components/NeuTypography'
 
@@ -37,6 +38,7 @@ export default function Home() {
   const [currentPrice, setCurrentPrice] = useState(-1)
   const [marketPrices, setMarketPrices] = useState([{s: '', mp: ''}]) 
   const [isClient, setIsClient] = useState(false)
+  const [display, setDisplay] = useState('fv')
  
   useEffect(() => {
     setIsClient(true)
@@ -82,8 +84,8 @@ export default function Home() {
     return
 
   return (
-    <Box sx={{ padding: '16px 128px 16px 128px', minHeight: '100vh', background: '#cbc3db' }}>
-      <Grid container spacing={4}>
+    <Box sx={{ padding: '16px 8px 16px 8px', minHeight: '100vh', background: '#cbc3db', overflow: 'scroll' }}>
+      <Grid container spacing={4} sx={{minWidth: '1460px', margin: '0px auto'}}>
         <Grid size={6}>
           <NeuCard sx={{ width: '100%', height: '100%', padding: '16px' }}>
             <CardContent>
@@ -93,9 +95,13 @@ export default function Home() {
                 </Grid>
                 <Grid size={8} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Grid container spacing={2}>
-                    <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Pair</NeuTypography></Grid>
-                    <Grid size={8}>
-                      <NeuSelect value={pair} onChange={e => setPair(e.target.value as string)} inputProps={{ MenuProps: { MenuListProps: { sx: { backgroundColor: '#cbc3db' } } } }}>
+                    <Grid size={5} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Pair</NeuTypography></Grid>
+                    <Grid size={7}>
+                      <NeuSelect 
+                        value={pair} 
+                        onChange={e => setPair(e.target.value as string)} 
+                        sx={{ width: '100%' }}
+                        inputProps={{ MenuProps: { MenuListProps: { sx: { backgroundColor: '#cbc3db' } } } }}>
                         <NeuMenuItem value={'BTCUSDT'}><NeuTypography>BTC/USDT</NeuTypography></NeuMenuItem>
                         <NeuMenuItem value={'ETHUSDT'}><NeuTypography>ETH/USDT</NeuTypography></NeuMenuItem>
                         <NeuMenuItem value={'SOLUSDT'}><NeuTypography>SOL/USDT</NeuTypography></NeuMenuItem>
@@ -103,10 +109,16 @@ export default function Home() {
                         <NeuMenuItem value={'XRPUSDT'}><NeuTypography>XRP/USDT</NeuTypography></NeuMenuItem>
                       </NeuSelect>
                     </Grid>
-                    <Grid size={4}><NeuTypography>Underlying Price</NeuTypography></Grid>
-                    <Grid size={8}><NeuTypography>{currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</NeuTypography></Grid>
-                    <Grid size={4}><NeuTypography>Historical Volatility</NeuTypography></Grid>
-                    <Grid size={8}><NeuTypography>{(volatility * 100).toFixed(2)} %</NeuTypography></Grid>
+                    <Grid size={5}><NeuTypography>Spot Price</NeuTypography></Grid>
+                    <Grid size={7}><NeuTypography>{currentPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</NeuTypography></Grid>
+                    <Grid size={5}><NeuTypography>Historical Volatility</NeuTypography></Grid>
+                    <Grid size={7}><NeuTypography>{(volatility * 100).toFixed(2)} %</NeuTypography></Grid>
+                    <Grid size={5} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Display</NeuTypography></Grid>
+                    <Grid size={7}>
+                      <NeuTypography fontSize={12} display='inline'>Fair Value</NeuTypography>
+                      <NeuSwitch checked={display === 'iv'} onChange={e => setDisplay(e.target.checked ? 'iv' : 'fv')}/>
+                      <NeuTypography fontSize={12} display='inline'>Implied Volatility</NeuTypography>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
@@ -117,16 +129,21 @@ export default function Home() {
           <NeuCard sx={{ width: '100%', padding: '16px' }}>
             <CardContent>
               <Grid container spacing={2}>
-                <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Risk Free Rate</NeuTypography></Grid>
-                <Grid size={8}>
+                <Grid size={5} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Risk Free Rate</NeuTypography></Grid>
+                <Grid size={7}>
                   <NeuTextField
-                    value={riskFreeRate} 
+                    value={riskFreeRate}
                     onChange={e => setRiskFreeRate(e.target.value !== '' ? parseFloat(e.target.value) : 0)}
+                    sx={{ width: '50%' }}
                     slotProps={{ input: { endAdornment: <InputAdornment position='end'><NeuTypography>%</NeuTypography></InputAdornment> } }}/>
                 </Grid>
-                <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Historical Volatility Interval</NeuTypography></Grid>
-                <Grid size={8}>
-                  <NeuSelect value={interval} onChange={e => setInterval(e.target.value as string)} inputProps={{ MenuProps: { MenuListProps: { sx: { backgroundColor: '#cbc3db' } } } }}>
+                <Grid size={5} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Historical Volatility Interval</NeuTypography></Grid>
+                <Grid size={7}>
+                  <NeuSelect 
+                    value={interval} 
+                    onChange={e => setInterval(e.target.value as string)} 
+                    sx={{ width: '50%' }}
+                    inputProps={{ MenuProps: { MenuListProps: { sx: { backgroundColor: '#cbc3db' } } } }}>
                     <NeuMenuItem value={'4h'}><NeuTypography>4 hours</NeuTypography></NeuMenuItem>
                     <NeuMenuItem value={'12h'}><NeuTypography>12 hours</NeuTypography></NeuMenuItem>
                     <NeuMenuItem value={'1d'}><NeuTypography>1 day</NeuTypography></NeuMenuItem>
@@ -135,8 +152,8 @@ export default function Home() {
                     <NeuMenuItem value={'1M'}><NeuTypography>1 month</NeuTypography></NeuMenuItem>
                   </NeuSelect>
                 </Grid>
-                <Grid size={4} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Historical Volatility Window</NeuTypography></Grid>
-                <Grid size={8}>
+                <Grid size={5} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Historical Volatility Window</NeuTypography></Grid>
+                <Grid size={7}>
                   <NeuSlider value={window} max={360} min={10} onChange={e => setWindow(parseInt((e.target as HTMLInputElement).value))} step={10} valueLabelDisplay={'on'} />
                 </Grid>
               </Grid>
@@ -148,17 +165,31 @@ export default function Home() {
             <Grid size={6}>
               <NeuCard>
                 <CardContent>
-                <Box sx={{textAlign: 'center', marginBottom: '16px'}}><NeuTypography variant='h5'>Calls</NeuTypography></Box>
-                <Visualizer currentPrice={currentPrice} pair={pair} volatility={volatility} riskFreeRate={riskFreeRate/100} marketPrices={marketPrices} optionType={'call'}/>
+                  <Visualizer 
+                    currentPrice={currentPrice} 
+                    pair={pair} 
+                    volatility={volatility} 
+                    riskFreeRate={riskFreeRate / 100} 
+                    marketPrices={marketPrices} 
+                    optionType={'call'}
+                    display={display}/>
                 </CardContent>
               </NeuCard>
             </Grid>
             <Grid size={6}>
             <NeuCard>
-            <CardContent>
-            <Box sx={{textAlign: 'center', marginBottom: '16px'}}><NeuTypography variant='h5'>Puts</NeuTypography></Box>
-              <Visualizer currentPrice={currentPrice} pair={pair} volatility={volatility} riskFreeRate={riskFreeRate/100} marketPrices={marketPrices} optionType={'put'}/>
-              </CardContent></NeuCard></Grid>
+              <CardContent>
+                <Visualizer 
+                  currentPrice={currentPrice} 
+                  pair={pair} 
+                  volatility={volatility} 
+                  riskFreeRate={riskFreeRate / 100} 
+                  marketPrices={marketPrices} 
+                  optionType={'put'}
+                  display={display}/>
+                </CardContent>
+              </NeuCard>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
