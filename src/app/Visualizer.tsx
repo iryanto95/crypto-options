@@ -72,7 +72,7 @@ export default function Visualizer(props: propsType) {
   rows.push(dates)
 
   let maxDiff = 0
-  const cells: {[key: number]: Array<{diff: number, iv: string, optPrice: number, bsPrice: number, isRef: boolean}>} = {}
+  const cells: {[key: number]: Array<{diff: number, iv: number | null, optPrice: number, bsPrice: number, isRef: boolean}>} = {}
 
   for (let strike = refPrice + 12 * incr; strike >= refPrice - 12 * incr; strike -= incr) {
     const row = []
@@ -90,14 +90,14 @@ export default function Visualizer(props: propsType) {
       const optPrice = props.marketPrices[`${props.pair.substring(0, props.pair.length - 4)}-${thisDayString}-${(strike).toFixed(2)}-${props.optionType === 'call' ? 'C' : 'P'}`]
       const bsPrice = blackScholes(props.currentPrice, strike, (day + lowestDTE + remainingToday) / 365, props.riskFreeRate, props.hv, props.optionType)
       const iv = optPrice ? calculateIV(optPrice, props.currentPrice, strike, (day + lowestDTE + remainingToday) / 365, props.riskFreeRate, props.hv, props.optionType) : null
-      const diff = optPrice > 0 ? optPrice - bsPrice : 0
+      const diff = props.displayVal === 'fv' ? (optPrice > 0 ? optPrice - bsPrice : 0) : (iv !== null ? iv - props.hv : 0)
 
       if (Math.abs(diff) > maxDiff)
         maxDiff = Math.abs(diff)
 
       strikeCells.push({
         diff,
-        iv: iv !== null ? (iv * 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %' : '',
+        iv,
         optPrice,
         bsPrice,
         isRef: strike === refPrice
@@ -135,7 +135,7 @@ export default function Visualizer(props: propsType) {
                 <Box>
                   { props.displayVal === 'fv' ? 
                     <NeuTypography fontSize={10}>{cell.bsPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</NeuTypography>
-                    : <NeuTypography fontSize={10}>{cell.iv}</NeuTypography>
+                    : <NeuTypography fontSize={10}>{cell.iv !== null ? (cell.iv * 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %' : ''}</NeuTypography>
                   }
                 </Box>
               </Box>
