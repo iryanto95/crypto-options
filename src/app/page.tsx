@@ -135,13 +135,13 @@ export default function Home() {
                     <Grid size={12}>
                       <Grid container spacing={0}>
                         <Grid size={5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'right' }}>
-                          <NeuTypography fontSize={12} display='inline'>Fair Value (HV)</NeuTypography>
+                          <NeuTypography fontSize={12} display='inline'>Theoretical Value</NeuTypography>
                         </Grid>
                         <Grid size={2} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <NeuSwitch checked={displayVal === 'iv'} onChange={e => setDisplayVal(e.target.checked ? 'iv' : 'fv')}/>
                         </Grid>
                         <Grid size={5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'left' }}>
-                          <NeuTypography fontSize={12} display='inline'>Implied Volatility</NeuTypography>
+                          <NeuTypography fontSize={12} display='inline'>Implied Volatility (IV)</NeuTypography>
                         </Grid>
                         <Grid size={5} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'right' }}>
                           <NeuTypography fontSize={12} display='inline'>Expiry Date</NeuTypography>
@@ -161,7 +161,7 @@ export default function Home() {
           </NeuCard>
         </Grid>
         <Grid size={6}>
-          <NeuCard sx={{ width: '100%', padding: '16px' }}>
+          <NeuCard sx={{ width: '100%', padding: '16px', height: '100%' }}>
             <CardContent>
               <Grid container spacing={2}>
                 <Grid size={5} sx={{ display: 'flex', alignItems: 'center' }}><NeuTypography>Risk Free Rate</NeuTypography></Grid>
