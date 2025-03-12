@@ -126,9 +126,9 @@ export default function Visualizer(props: propsType) {
               padding: '2px', 
               minHeight: '50px',
               backgroundColor: cell.diff < 0 ? 
-                `rgba(100,200,130,${0.5 + 0.5 * Math.abs(cell.diff / maxDiff)})` 
+                `rgba(100,${150 + 75 * Math.abs(cell.diff / maxDiff)},125,${0.25 + 0.75 * Math.abs(cell.diff / maxDiff)})` 
                 : cell.diff > 0 ? 
-                `rgba(200,100,130,${0.5 + 0.5 * Math.abs(cell.diff / maxDiff)})` : undefined
+                `rgba(${150 + 75 * Math.abs(cell.diff / maxDiff)},100,125,${0.25 + 0.75 * Math.abs(cell.diff / maxDiff)})` : undefined
             }}>
               <Box>
                 <Box sx={{visibility: cell.optPrice ? 'visible' : 'hidden', fontWeight: 600}}><NeuTypography fontSize={12}>{cell.optPrice ? cell.optPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : <>-</>}</NeuTypography></Box>
