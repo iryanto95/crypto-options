@@ -8,7 +8,7 @@ const nunitoSans = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'BTC Option',
+  title: 'Crypto Options',
   description: 'Crypto pricing model',
 };
 
