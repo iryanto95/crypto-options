@@ -103,7 +103,7 @@ export default function Home() {
     return
 
   return (
-    <Box sx={{ padding: '16px 8px 16px 8px', minHeight: '100vh', background: '#cbc3db', overflow: 'scroll' }}>
+    <Box sx={{ padding: '16px 8px 16px 8px', minHeight: '100vh', background: '#cbc3db' }}>
       <Grid container spacing={4} sx={{minWidth: '1460px', margin: '0px auto'}}>
         <Grid size={6}>
           <NeuCard sx={{ width: '100%', height: '100%', padding: '16px' }}>

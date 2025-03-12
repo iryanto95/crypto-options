@@ -50,8 +50,8 @@ export default function Visualizer(props: propsType) {
 
   const rows = []
   const dates = []
-  for (let day = -1; day < cols; day++) {
-    if (day === -1)
+  for (let day = 0; day < cols + 1; day++) {
+    if (day === 0)
       dates.push(
         <Grid key={day} size={12/(cols + 1)} sx={{ textAlign: 'right', fontSize: '10pt', padding: '2px' }}>
           <NeuTypography fontSize={12}>Strike\{ props.displayDay === 'expd' ? 'Expiry' : 'DTE' }</NeuTypography>
@@ -83,7 +83,7 @@ export default function Visualizer(props: propsType) {
     )
 
     const strikeCells = []
-    for (let day = 0; day < cols; day++) {
+    for (let day = 1; day < cols + 1; day++) {
       const thisDay = new Date(today.getTime() + ( lowestDTE + day ) * 24 * 3600 * 1000)
       const thisDayString = `${thisDay.getFullYear() % 100}${thisDay.getMonth() + 1 < 10 ? 0 : ''}${thisDay.getMonth() + 1}${thisDay.getDate() < 10 ? 0 : ''}${thisDay.getDate()}`
       
@@ -91,9 +91,6 @@ export default function Visualizer(props: propsType) {
       const bsPrice = blackScholes(props.currentPrice, strike, (day + lowestDTE + remainingToday) / 365, props.riskFreeRate, props.hv, props.optionType)
       const iv = optPrice ? calculateIV(optPrice, props.currentPrice, strike, (day + lowestDTE + remainingToday) / 365, props.riskFreeRate, props.hv, props.optionType) : null
       const diff = optPrice > 0 ? optPrice - bsPrice : 0
-      
-      if (strike === refPrice && props.optionType === 'call') 
-        console.log(day, `${props.pair.substring(0, props.pair.length - 4)}-${thisDayString}-${(strike).toFixed(2)}-${props.optionType === 'call' ? 'C' : 'P'}`, optPrice)
 
       if (Math.abs(diff) > maxDiff)
         maxDiff = Math.abs(diff)
