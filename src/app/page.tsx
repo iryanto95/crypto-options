@@ -80,7 +80,7 @@ export default function Home() {
     }
   }, [pair])
 
-  const calculateVolatility = useCallback(async () => {
+  const calculateHV = useCallback(async () => {
     // Fetch historical prices
     const { data: candles } = await axios.get(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=${interval}&limit=${window}`)
     const prices = candles.map((c: Array<string>) => parseFloat(c[4]))
@@ -96,8 +96,8 @@ export default function Home() {
   }, [pair, interval, window])
 
   useEffect(() => {
-    calculateVolatility()
-  }, [calculateVolatility])
+    calculateHV()
+  }, [calculateHV])
 
   if (!isClient)
     return
@@ -203,7 +203,7 @@ export default function Home() {
                   <Visualizer 
                     currentPrice={currentPrice} 
                     pair={pair} 
-                    volatility={volatility} 
+                    hv={volatility} 
                     riskFreeRate={riskFreeRate / 100} 
                     marketPrices={marketPrices} 
                     optionType={'call'}
@@ -218,7 +218,7 @@ export default function Home() {
                 <Visualizer 
                   currentPrice={currentPrice} 
                   pair={pair} 
-                  volatility={volatility} 
+                  hv={volatility} 
                   riskFreeRate={riskFreeRate / 100} 
                   marketPrices={marketPrices} 
                   optionType={'put'}

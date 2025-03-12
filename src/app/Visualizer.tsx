@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useCallback, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   Box,
   Grid2 as Grid,
@@ -11,6 +11,7 @@ import {
 
 import NeuIconButton from './components/NeuIconButton'
 import NeuTypography from './components/NeuTypography'
+import { blackScholes, calculateIV } from './utils/calc'
 
 const STRIKE_INCR: { [key: string]: number } = {
   'BTCUSDT': 1000,
@@ -23,7 +24,7 @@ const STRIKE_INCR: { [key: string]: number } = {
 type propsType = {
   currentPrice: number
   pair: string
-  volatility: number
+  hv: number
   riskFreeRate: number
   optionType: string
   marketPrices: {[key:string]: number }
@@ -34,89 +35,19 @@ type propsType = {
 export default function Visualizer(props: propsType) {
   const [lowestDTE, setLowestDTE] = useState(0)
 
-  const blackScholes = useCallback((strike: number, timeToExpiration: number, sigma: number) => {
-    function normalCDF(x: number) {
-      return (1.0 + erf(x / Math.SQRT2)) / 2.0
-    }
-
-    function erf(x: number) {
-      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911
-
-      const sign = x < 0 ? -1 : 1
-      x = Math.abs(x)
-
-      const t = 1.0 / (1.0 + p * x)
-      const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x)
-
-      return sign * y
-    }
-
-    const d1 = (Math.log(props.currentPrice / strike) + (props.riskFreeRate + sigma * sigma / 2) * timeToExpiration) / (sigma * Math.sqrt(timeToExpiration))
-    if (isNaN(d1)) return 0
-
-    const d2 = d1 - sigma * Math.sqrt(timeToExpiration)
-
-    const Nd1 = normalCDF(d1)
-    const Nd2 = normalCDF(d2)
-    const Nd1_neg = normalCDF(-d1)
-    const Nd2_neg = normalCDF(-d2)
-
-    if (props.optionType === 'call')
-      return props.currentPrice * Nd1 - strike * Math.exp(-props.riskFreeRate * timeToExpiration) * Nd2
-    else
-      return strike * Math.exp(-props.riskFreeRate * timeToExpiration) * Nd2_neg - props.currentPrice * Nd1_neg
-  }, [props.currentPrice, props.riskFreeRate, props.optionType])
-
-  // Vega (Sensitivity of BS Price to Volatility)
-  const vega = useCallback((strike: number, timeToExpiration: number, sigma: number) => {
-    const d1 = (Math.log(props.currentPrice / strike) + (props.riskFreeRate + sigma * sigma / 2) * timeToExpiration) / (sigma * Math.sqrt(timeToExpiration))
-    const pdf = Math.exp(-0.5 * d1 * d1) / Math.sqrt(2 * Math.PI)
-    return props.currentPrice * pdf * Math.sqrt(timeToExpiration)
-  }, [props.currentPrice, props.riskFreeRate])
-
-  const impliedVolatility = useCallback((marketPrice: number, strike: number, timeToExpiration: number) => {
-    const tol = 1e-5
-    const maxIter = 100
-    let sigmaLow = 0.01, sigmaHigh = 5.0
-    let sigma = props.volatility
-
-    for (let i = 0; i < maxIter; i++) {
-      const price = blackScholes(strike, timeToExpiration, sigma)
-      const vegaVal = vega(strike, timeToExpiration, sigma)
-      const diff = price - marketPrice
-
-      if (Math.abs(diff) < tol)
-        return sigma
-
-      if (vegaVal < 1e-4)
-        sigma = (sigmaLow + sigmaHigh) / 2
-      else {
-        // Newton-Raphson update
-        const newSigma = sigma - diff / vegaVal
-
-        // Ensure sigma stays within bisection bounds
-        if (newSigma < sigmaLow || newSigma > sigmaHigh)
-          sigma = (sigmaLow + sigmaHigh) / 2
-        else
-          sigma = newSigma
-      }
-
-      // Update bisection bounds
-      if (blackScholes(strike, timeToExpiration, sigma) > marketPrice)
-        sigmaHigh = sigma
-      else
-        sigmaLow = sigma
-    }
-
-    return sigma // Return best estimate
-  }, [props.volatility, blackScholes, vega])
+  const today = useMemo(() => {
+    return new Date()
+  }, [])
+  const remainingToday = useMemo(() => {
+    const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 0, 0, 0, 0))
+    return (endOfDay.getTime() - today.getTime()) / 86400000
+  }, [today])
 
   const incr = STRIKE_INCR[props.pair]
   const refPrice = Math.floor(props.currentPrice / incr) * incr
 
   const rows = []
   const dates = []
-  const today = new Date()
   for (let day = -1; day < 10; day++) {
     const theDate = new Date(today.getTime() + (day + lowestDTE) * 24 * 3600 * 1000)
     if (day === -1)
@@ -137,9 +68,6 @@ export default function Visualizer(props: propsType) {
   }
   rows.push(dates)
 
-  today.setTime(today.getTime() + lowestDTE * 24 * 2600 * 1000)
-  const endOfDay = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1, 0, 0, 0, 0))
-  const remainingToday = (endOfDay.getTime() - today.getTime()) / 3600000
   let maxDiff = 0
 
   for (let strike = refPrice + 5 * incr; strike >= refPrice - 5 * incr; strike -= incr) {
@@ -155,8 +83,8 @@ export default function Visualizer(props: propsType) {
       const thisDayString = `${thisDay.getFullYear() % 100}${thisDay.getMonth() + 1 < 10 ? 0 : ''}${thisDay.getMonth() + 1}${thisDay.getDate() < 10 ? 0 : ''}${thisDay.getDate()}`
       
       const optPrice = props.marketPrices[`${props.pair.substring(0, props.pair.length - 4)}-${thisDayString}-${(strike).toFixed(2)}-${props.optionType === 'call' ? 'C' : 'P'}`]
-      const bsPrice = blackScholes(strike, (day + lowestDTE + remainingToday) / 365, props.volatility)
-      const iv = optPrice ? impliedVolatility(optPrice, strike, (day + lowestDTE + remainingToday) / 365) : null
+      const bsPrice = blackScholes(props.currentPrice, strike, (day + lowestDTE + remainingToday) / 365, props.riskFreeRate, props.hv, props.optionType)
+      const iv = optPrice ? calculateIV(optPrice, props.currentPrice, strike, (day + lowestDTE + remainingToday) / 365, props.riskFreeRate, props.hv, props.optionType) : null
       const diff = optPrice ? optPrice - bsPrice : 0
 
       if (Math.abs(diff) > maxDiff)
